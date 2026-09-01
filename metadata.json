@@ -1,0 +1,6 @@
+{
+  "name": "Text to Comic Strip Generator",
+  "description": "Transform any story, script, or idea into an authentic multi-panel comic strip with AI illustrations, speech bubbles, sound effects, and customizable layouts.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
