@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useMemo } from 'react';
 import { ComicPanel, ComicStyleId, SpeechBubble, ComicSFX } from '../types';
 import { SpeechBubbleItem } from './SpeechBubbleItem';
 import { SFXStickerItem } from './SFXStickerItem';
@@ -51,7 +51,9 @@ export const ComicPanelItem: React.FC<ComicPanelItemProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Artwork resolution
-  const displayImage = panel.imageUrl || generateThemedPanelArtwork(panel, styleId, index, totalPanels);
+  const displayImage = useMemo(() => {
+    return panel.imageUrl || generateThemedPanelArtwork(panel, styleId, index, totalPanels);
+  }, [panel, styleId, index, totalPanels]);
 
   // Handle Speech Bubble actions with intelligent character positioning
   const handleAddBubble = (type: SpeechBubble['type'] = 'speech') => {
