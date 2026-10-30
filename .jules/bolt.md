@@ -1,0 +1,3 @@
+## 2025-02-28 - [Performance] Debounce heavy sync operations and memoize SVG generation
+**Learning:** Writing base64 data strings into `localStorage` synchronosly during dragging blocks the main thread. Also, continuously re-evaluating SVG generations in `ComicPanelItem.tsx` without memoization also blocks the main thread significantly.
+**Action:** Always wrap heavy synchronous storage updates (especially containing image data/base64 strings) inside a debounced `setTimeout` within `useEffect`. Use `useMemo` in React components to avoid re-evaluating heavy synchronous code unnecessarily.

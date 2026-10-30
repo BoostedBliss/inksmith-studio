@@ -52,11 +52,14 @@ export default function App() {
 
   // Persist to localStorage
   useEffect(() => {
-    try {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(comics));
-    } catch (e) {
-      console.warn('Failed to save comics to localStorage', e);
-    }
+    const timeoutId = setTimeout(() => {
+      try {
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(comics));
+      } catch (e) {
+        console.warn('Failed to save comics to localStorage', e);
+      }
+    }, 500);
+    return () => clearTimeout(timeoutId);
   }, [comics]);
 
   // Update current comic helper
