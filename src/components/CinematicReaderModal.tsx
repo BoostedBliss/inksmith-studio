@@ -147,6 +147,7 @@ export const CinematicReaderModal: React.FC<CinematicReaderModalProps> = ({ comi
           {/* Close button */}
           <button
             type="button"
+            aria-label="Close Reader Modal"
             onClick={() => {
               window.speechSynthesis?.cancel();
               onClose();
@@ -163,6 +164,7 @@ export const CinematicReaderModal: React.FC<CinematicReaderModalProps> = ({ comi
         {/* Left Arrow */}
         <button
           type="button"
+          aria-label="Previous Panel"
           onClick={prevPanel}
           disabled={currentPanelIndex === 0}
           className="absolute left-2 sm:left-6 z-30 p-3 bg-white text-black hover:bg-red-600 hover:text-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] disabled:opacity-30 disabled:pointer-events-none transition-all"
@@ -191,6 +193,7 @@ export const CinematicReaderModal: React.FC<CinematicReaderModalProps> = ({ comi
         {/* Right Arrow */}
         <button
           type="button"
+          aria-label="Next Panel"
           onClick={nextPanel}
           disabled={currentPanelIndex === panels.length - 1}
           className="absolute right-2 sm:right-6 z-30 p-3 bg-white text-black hover:bg-red-600 hover:text-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] disabled:opacity-30 disabled:pointer-events-none transition-all"
@@ -205,6 +208,7 @@ export const CinematicReaderModal: React.FC<CinematicReaderModalProps> = ({ comi
           <button
             key={p.id}
             type="button"
+            aria-label={`Go to panel ${idx + 1}`}
             onClick={() => setCurrentPanelIndex(idx)}
             className={`transition-all ${
               idx === currentPanelIndex
