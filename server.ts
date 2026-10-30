@@ -183,7 +183,7 @@ Also provide comic-level metadata:
   } catch (error: any) {
     console.error('Error in /api/comic/breakdown:', error);
     return res.status(500).json({
-      error: error.message || 'Failed to break down script',
+      error: 'Failed to break down script',
     });
   }
 });
@@ -251,7 +251,7 @@ ${text}
     return res.json({ success: true, dialogues: parsed.dialogues || [] });
   } catch (error: any) {
     console.error('Error in /api/comic/detect-dialogue:', error);
-    return res.status(500).json({ error: error.message || 'Dialogue detection failed' });
+    return res.status(500).json({ error: 'Dialogue detection failed' });
   }
 });
 
@@ -308,7 +308,7 @@ app.post('/api/comic/generate-panel', async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     console.error('Error in /api/comic/generate-panel:', error);
-    return res.status(500).json({ error: error.message || 'Image generation failed' });
+    return res.status(500).json({ error: 'Image generation failed' });
   }
 });
 
@@ -335,7 +335,7 @@ Expand it into an engaging, dramatic, or hilarious ${panelCount}-panel comic boo
     return res.json({ success: true, script: response.text || '' });
   } catch (error: any) {
     console.error('Error in /api/comic/enhance-script:', error);
-    return res.status(500).json({ error: error.message || 'Script enhancement failed' });
+    return res.status(500).json({ error: 'Script enhancement failed' });
   }
 });
 
@@ -368,7 +368,7 @@ app.post('/api/comic/tts', async (req: Request, res: Response) => {
     return res.status(404).json({ error: 'Audio not generated' });
   } catch (error: any) {
     console.error('TTS error:', error);
-    return res.status(500).json({ error: error.message || 'TTS generation failed' });
+    return res.status(500).json({ error: 'TTS generation failed' });
   }
 });
 
