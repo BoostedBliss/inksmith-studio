@@ -13,7 +13,7 @@ interface ComicCanvasProps {
   onDeletePanel: (panelId: string) => void;
 }
 
-export const ComicCanvas = forwardRef<HTMLDivElement, ComicCanvasProps>(
+export const ComicCanvas = React.memo(forwardRef<HTMLDivElement, ComicCanvasProps>(
   ({ comic, onUpdatePanel, onRegenerateImage, onOpenInspector, onMovePanel, onDeletePanel }, ref) => {
     const layoutDef = COMIC_LAYOUTS.find((l) => l.id === comic.layoutId) || COMIC_LAYOUTS[0];
     const styleDef = COMIC_STYLES.find((s) => s.id === comic.styleId) || COMIC_STYLES[0];
@@ -125,6 +125,6 @@ export const ComicCanvas = forwardRef<HTMLDivElement, ComicCanvasProps>(
       </div>
     );
   }
-);
+));
 
 ComicCanvas.displayName = 'ComicCanvas';
