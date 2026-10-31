@@ -194,12 +194,15 @@ export const ComicLibraryModal: React.FC<ComicLibraryModalProps> = ({
                     {comics.length > 1 && (
                       <button
                         type="button"
+                        aria-label="Delete Comic"
                         title="Delete Comic"
                         onClick={(e) => {
                           e.stopPropagation();
-                          onDeleteComic(c.id);
+                          if (window.confirm('Are you sure you want to delete this comic?')) {
+                            onDeleteComic(c.id);
+                          }
                         }}
-                        className="p-1 text-red-600 hover:bg-black hover:text-white"
+                        className="p-1 text-red-600 hover:bg-black hover:text-white focus-visible:ring-2"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>

@@ -319,8 +319,13 @@ export const ComicPanelItem: React.FC<ComicPanelItemProps> = ({
               <span>|</span>
               <button
                 type="button"
-                onClick={() => onUpdatePanel({ ...panel, caption: '' })}
-                className="text-red-400 hover:text-white font-editorial-mono"
+                aria-label="Delete caption"
+                onClick={() => {
+                  if (window.confirm('Are you sure you want to delete this caption?')) {
+                    onUpdatePanel({ ...panel, caption: '' });
+                  }
+                }}
+                className="text-red-400 hover:text-white font-editorial-mono focus-visible:ring-2"
               >
                 Delete
               </button>
@@ -491,12 +496,15 @@ export const ComicPanelItem: React.FC<ComicPanelItemProps> = ({
           {totalPanels > 1 && (
             <button
               type="button"
+              aria-label="Delete panel"
               title="Delete Panel"
               onClick={(e) => {
                 e.stopPropagation();
-                onDeletePanel(panel.id);
+                if (window.confirm('Are you sure you want to delete this panel?')) {
+                  onDeletePanel(panel.id);
+                }
               }}
-              className="p-1 text-red-600 hover:bg-black hover:text-white"
+              className="p-1 text-red-600 hover:bg-black hover:text-white focus-visible:ring-2"
             >
               <Trash2 className="w-3.5 h-3.5" />
             </button>
