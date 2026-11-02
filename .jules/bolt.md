@@ -1,3 +1,6 @@
 ## 2025-02-28 - [Performance] Debounce heavy sync operations and memoize SVG generation
 **Learning:** Writing base64 data strings into `localStorage` synchronosly during dragging blocks the main thread. Also, continuously re-evaluating SVG generations in `ComicPanelItem.tsx` without memoization also blocks the main thread significantly.
 **Action:** Always wrap heavy synchronous storage updates (especially containing image data/base64 strings) inside a debounced `setTimeout` within `useEffect`. Use `useMemo` in React components to avoid re-evaluating heavy synchronous code unnecessarily.
+## 2025-02-28 - [Performance] Optimize complex UI components with React.memo
+**Learning:** Complex child UI items like `ComicPanelItem`, `SpeechBubbleItem`, and `SFXStickerItem` will unnecessarily re-render and block the main thread when a user drags an element or updates state in a sibling. Trying to memoize nested function dependencies (like `generateThemedPanelArtwork`) manually by cherry-picking object props violates React exhaustive-deps because the function receives the entire object.
+**Action:** Always wrap complex, interactive child items rendered from arrays in `React.memo` (with properly preserved `.displayName` properties) to stop cascading re-renders across the component tree.
