@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ComicStrip, ComicPanel, ComicStyleId, ComicLayoutId } from './types';
 import { SAMPLE_INITIAL_COMIC, COMIC_STYLES, COMIC_LAYOUTS } from './data/comicPresets';
 import { ComicCanvas } from './components/ComicCanvas';
@@ -62,20 +62,30 @@ export default function App() {
     return () => clearTimeout(timeoutId);
   }, [comics]);
 
+  // ⚡ Bolt Optimization: Use useCallback and functional state update to keep reference stable
   // Update current comic helper
-  const handleUpdateComic = (updated: ComicStrip) => {
+  const handleUpdateComic = useCallback((updated: ComicStrip) => {
     setComics((prev) => prev.map((c) => (c.id === updated.id ? updated : c)));
-  };
+  }, []);
 
+  // ⚡ Bolt Optimization: Wrap handleUpdatePanel in useCallback and use functional state update
+  // to avoid recreating the function on every render, allowing child React.memo to work
   // Update single panel in current comic
-  const handleUpdatePanel = (updatedPanel: ComicPanel) => {
-    const updatedPanels = currentComic.panels.map((p) => (p.id === updatedPanel.id ? updatedPanel : p));
-    handleUpdateComic({
-      ...currentComic,
-      panels: updatedPanels,
-      updatedAt: Date.now(),
+  const handleUpdatePanel = useCallback((updatedPanel: ComicPanel) => {
+    setComics((prev) => {
+      const current = prev.find((c) => c.id === currentComicId);
+      if (!current) return prev;
+
+      const updatedPanels = current.panels.map((p) => (p.id === updatedPanel.id ? updatedPanel : p));
+      const updatedComic = {
+        ...current,
+        panels: updatedPanels,
+        updatedAt: Date.now(),
+      };
+
+      return prev.map((c) => (c.id === currentComicId ? updatedComic : c));
     });
-  };
+  }, [currentComicId]);
 
   // Move panel order
   const handleMovePanel = (fromIndex: number, toIndex: number) => {

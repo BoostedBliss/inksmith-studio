@@ -1,4 +1,4 @@
-import React, { useRef, useState, useMemo } from 'react';
+import React, { useRef, useState, useMemo, memo } from 'react';
 import { ComicPanel, ComicStyleId, SpeechBubble, ComicSFX } from '../types';
 import { SpeechBubbleItem } from './SpeechBubbleItem';
 import { SFXStickerItem } from './SFXStickerItem';
@@ -30,7 +30,9 @@ interface ComicPanelItemProps {
   spanClass?: string;
 }
 
-export const ComicPanelItem: React.FC<ComicPanelItemProps> = ({
+// ⚡ Bolt Optimization: Wrap component in React.memo to prevent unnecessary re-renders
+// when sibling panels update, saving significant processing time per action
+export const ComicPanelItem: React.FC<ComicPanelItemProps> = memo(({
   panel,
   styleId,
   index,
@@ -505,4 +507,4 @@ export const ComicPanelItem: React.FC<ComicPanelItemProps> = ({
       </div>
     </div>
   );
-};
+});
