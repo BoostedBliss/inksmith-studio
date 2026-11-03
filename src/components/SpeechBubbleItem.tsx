@@ -556,9 +556,10 @@ export const SpeechBubbleItem: React.FC<SpeechBubbleItemProps> = ({
             {/* 6. Delete bubble */}
             <button
               type="button"
+              aria-label="Delete speech bubble"
               title="Delete bubble"
               onClick={() => onDelete(bubble.id)}
-              className="p-1 text-red-500 hover:bg-red-600 hover:text-white"
+              className="p-1 text-red-500 hover:bg-red-600 hover:text-white focus-visible:ring-2 focus-visible:ring-red-600 focus:outline-none"
             >
               <Trash2 className="w-3 h-3" />
             </button>
