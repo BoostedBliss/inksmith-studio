@@ -187,9 +187,10 @@ export const SFXStickerItem: React.FC<SFXStickerItemProps> = ({
 
             <button
               type="button"
+              aria-label="Delete sound effect"
               title="Delete SFX"
               onClick={() => onDelete(sfx.id)}
-              className="p-0.5 text-red-400 hover:text-red-300"
+              className="p-0.5 text-red-400 hover:text-red-300 focus-visible:ring-2 focus-visible:ring-red-600 focus:outline-none"
             >
               <Trash2 className="w-3 h-3" />
             </button>
