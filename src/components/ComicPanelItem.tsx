@@ -92,11 +92,13 @@ export const ComicPanelItem: React.FC<ComicPanelItemProps> = ({
   };
 
   const handleDeleteBubble = (id: string) => {
-    onUpdatePanel({
-      ...panel,
-      bubbles: panel.bubbles.filter((b) => b.id !== id),
-    });
-    if (selectedBubbleId === id) setSelectedBubbleId(null);
+    if (window.confirm('Are you sure you want to delete this speech bubble?')) {
+      onUpdatePanel({
+        ...panel,
+        bubbles: panel.bubbles.filter((b) => b.id !== id),
+      });
+      if (selectedBubbleId === id) setSelectedBubbleId(null);
+    }
   };
 
   // Handle SFX actions
@@ -126,11 +128,13 @@ export const ComicPanelItem: React.FC<ComicPanelItemProps> = ({
   };
 
   const handleDeleteSFX = (id: string) => {
-    onUpdatePanel({
-      ...panel,
-      sfxList: panel.sfxList.filter((s) => s.id !== id),
-    });
-    if (selectedSfxId === id) setSelectedSfxId(null);
+    if (window.confirm('Are you sure you want to delete this sound effect?')) {
+      onUpdatePanel({
+        ...panel,
+        sfxList: panel.sfxList.filter((s) => s.id !== id),
+      });
+      if (selectedSfxId === id) setSelectedSfxId(null);
+    }
   };
 
   // Image Upload Handlers
