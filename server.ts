@@ -9,7 +9,19 @@ dotenv.config();
 const app = express();
 const PORT = 3000;
 
-app.use(express.json({ limit: '25mb' }));
+// Security hardening: disable x-powered-by header
+app.disable('x-powered-by');
+
+// Security hardening: add standard security headers
+app.use((req: Request, res: Response, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  next();
+});
+
+// Security hardening: restrict payload size to mitigate DoS
+app.use(express.json({ limit: '2mb' }));
 
 // Lazy initializer for Gemini client
 let aiClient: GoogleGenAI | null = null;
