@@ -7,11 +7,11 @@ interface SFXStickerItemProps {
   onUpdate: (updated: ComicSFX) => void;
   onDelete: (id: string) => void;
   isSelected: boolean;
-  onSelect: () => void;
+  onSelect: (id: string) => void;
   containerRef: React.RefObject<HTMLDivElement | null>;
 }
 
-export const SFXStickerItem: React.FC<SFXStickerItemProps> = ({
+export const SFXStickerItem: React.FC<SFXStickerItemProps> = React.memo(({
   sfx,
   onUpdate,
   onDelete,
@@ -25,7 +25,7 @@ export const SFXStickerItem: React.FC<SFXStickerItemProps> = ({
 
   const handlePointerDown = (e: React.PointerEvent) => {
     e.stopPropagation();
-    onSelect();
+    onSelect(sfx.id);
     setIsDragging(true);
     dragRef.current = {
       startX: e.clientX,
@@ -198,4 +198,4 @@ export const SFXStickerItem: React.FC<SFXStickerItemProps> = ({
       </div>
     </div>
   );
-};
+});
