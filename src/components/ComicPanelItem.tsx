@@ -1,4 +1,4 @@
-import React, { useRef, useState, useMemo } from 'react';
+import React, { useRef, useState, useMemo, useCallback } from 'react';
 import { ComicPanel, ComicStyleId, SpeechBubble, ComicSFX } from '../types';
 import { SpeechBubbleItem } from './SpeechBubbleItem';
 import { SFXStickerItem } from './SFXStickerItem';
@@ -30,7 +30,7 @@ interface ComicPanelItemProps {
   spanClass?: string;
 }
 
-export const ComicPanelItem: React.FC<ComicPanelItemProps> = ({
+export const ComicPanelItem: React.FC<ComicPanelItemProps> = React.memo(({
   panel,
   styleId,
   index,
@@ -56,7 +56,7 @@ export const ComicPanelItem: React.FC<ComicPanelItemProps> = ({
   }, [panel, styleId, index, totalPanels]);
 
   // Handle Speech Bubble actions with intelligent character positioning
-  const handleAddBubble = (type: SpeechBubble['type'] = 'speech') => {
+  const handleAddBubble = useCallback((type: SpeechBubble['type'] = 'speech') => {
     const isSecondSpeaker = panel.bubbles.length % 2 === 1;
     const characterPos = isSecondSpeaker ? 'right' : 'left';
     const coords = isSecondSpeaker
@@ -82,25 +82,25 @@ export const ComicPanelItem: React.FC<ComicPanelItemProps> = ({
       bubbles: [...panel.bubbles, newBubble],
     });
     setSelectedBubbleId(newBubble.id);
-  };
+  }, [panel, onUpdatePanel]);
 
-  const handleUpdateBubble = (updated: SpeechBubble) => {
+  const handleUpdateBubble = useCallback((updated: SpeechBubble) => {
     onUpdatePanel({
       ...panel,
       bubbles: panel.bubbles.map((b) => (b.id === updated.id ? updated : b)),
     });
-  };
+  }, [panel, onUpdatePanel]);
 
-  const handleDeleteBubble = (id: string) => {
+  const handleDeleteBubble = useCallback((id: string) => {
     onUpdatePanel({
       ...panel,
       bubbles: panel.bubbles.filter((b) => b.id !== id),
     });
     if (selectedBubbleId === id) setSelectedBubbleId(null);
-  };
+  }, [panel, onUpdatePanel, selectedBubbleId]);
 
   // Handle SFX actions
-  const handleAddSFX = (text: string = 'POW!') => {
+  const handleAddSFX = useCallback((text: string = 'POW!') => {
     const newSfx: ComicSFX = {
       id: `sfx-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
       text,
@@ -116,25 +116,35 @@ export const ComicPanelItem: React.FC<ComicPanelItemProps> = ({
       sfxList: [...panel.sfxList, newSfx],
     });
     setSelectedSfxId(newSfx.id);
-  };
+  }, [panel, onUpdatePanel]);
 
-  const handleUpdateSFX = (updated: ComicSFX) => {
+  const handleUpdateSFX = useCallback((updated: ComicSFX) => {
     onUpdatePanel({
       ...panel,
       sfxList: panel.sfxList.map((s) => (s.id === updated.id ? updated : s)),
     });
-  };
+  }, [panel, onUpdatePanel]);
 
-  const handleDeleteSFX = (id: string) => {
+  const handleDeleteSFX = useCallback((id: string) => {
     onUpdatePanel({
       ...panel,
       sfxList: panel.sfxList.filter((s) => s.id !== id),
     });
     if (selectedSfxId === id) setSelectedSfxId(null);
-  };
+  }, [panel, onUpdatePanel, selectedSfxId]);
+
+  const handleSelectBubble = useCallback((id: string) => {
+    setSelectedBubbleId(id);
+    setSelectedSfxId(null);
+  }, []);
+
+  const handleSelectSFX = useCallback((id: string) => {
+    setSelectedSfxId(id);
+    setSelectedBubbleId(null);
+  }, []);
 
   // Image Upload Handlers
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
@@ -150,7 +160,7 @@ export const ComicPanelItem: React.FC<ComicPanelItemProps> = ({
       };
       reader.readAsDataURL(file);
     }
-  };
+  }, [panel, onUpdatePanel]);
 
   // Caption positioning classes
   const getCaptionPositionClasses = (pos = panel.captionPosition || 'top-left') => {
@@ -337,10 +347,7 @@ export const ComicPanelItem: React.FC<ComicPanelItemProps> = ({
           onUpdate={handleUpdateBubble}
           onDelete={handleDeleteBubble}
           isSelected={selectedBubbleId === bubble.id}
-          onSelect={() => {
-            setSelectedBubbleId(bubble.id);
-            setSelectedSfxId(null);
-          }}
+          onSelect={() => handleSelectBubble(bubble.id)}
           containerRef={containerRef}
         />
       ))}
@@ -353,10 +360,7 @@ export const ComicPanelItem: React.FC<ComicPanelItemProps> = ({
           onUpdate={handleUpdateSFX}
           onDelete={handleDeleteSFX}
           isSelected={selectedSfxId === sfx.id}
-          onSelect={() => {
-            setSelectedSfxId(sfx.id);
-            setSelectedBubbleId(null);
-          }}
+          onSelect={() => handleSelectSFX(sfx.id)}
           containerRef={containerRef}
         />
       ))}
@@ -505,4 +509,6 @@ export const ComicPanelItem: React.FC<ComicPanelItemProps> = ({
       </div>
     </div>
   );
-};
+});
+
+ComicPanelItem.displayName = 'ComicPanelItem';
