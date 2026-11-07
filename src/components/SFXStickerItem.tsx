@@ -11,7 +11,7 @@ interface SFXStickerItemProps {
   containerRef: React.RefObject<HTMLDivElement | null>;
 }
 
-export const SFXStickerItem: React.FC<SFXStickerItemProps> = ({
+export const SFXStickerItem: React.FC<SFXStickerItemProps> = React.memo(({
   sfx,
   onUpdate,
   onDelete,
@@ -198,4 +198,6 @@ export const SFXStickerItem: React.FC<SFXStickerItemProps> = ({
       </div>
     </div>
   );
-};
+});
+
+SFXStickerItem.displayName = 'SFXStickerItem';

@@ -28,7 +28,7 @@ interface SpeechBubbleItemProps {
   containerRef: React.RefObject<HTMLDivElement | null>;
 }
 
-export const SpeechBubbleItem: React.FC<SpeechBubbleItemProps> = ({
+export const SpeechBubbleItem: React.FC<SpeechBubbleItemProps> = React.memo(({
   bubble,
   onUpdate,
   onDelete,
@@ -567,5 +567,7 @@ export const SpeechBubbleItem: React.FC<SpeechBubbleItemProps> = ({
       </div>
     </div>
   );
-};
+});
+
+SpeechBubbleItem.displayName = 'SpeechBubbleItem';
 
