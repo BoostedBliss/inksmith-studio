@@ -30,7 +30,7 @@ interface ComicPanelItemProps {
   spanClass?: string;
 }
 
-export const ComicPanelItem: React.FC<ComicPanelItemProps> = ({
+export const ComicPanelItem = React.memo<ComicPanelItemProps>(({
   panel,
   styleId,
   index,
@@ -505,4 +505,6 @@ export const ComicPanelItem: React.FC<ComicPanelItemProps> = ({
       </div>
     </div>
   );
-};
+});
+
+ComicPanelItem.displayName = 'ComicPanelItem';
