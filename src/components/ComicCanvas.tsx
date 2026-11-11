@@ -1,4 +1,4 @@
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useCallback, useEffect, useRef } from 'react';
 import { ComicStrip, ComicPanel } from '../types';
 import { ComicPanelItem } from './ComicPanelItem';
 import { COMIC_LAYOUTS, COMIC_STYLES } from '../data/comicPresets';
@@ -15,6 +15,19 @@ interface ComicCanvasProps {
 
 export const ComicCanvas = forwardRef<HTMLDivElement, ComicCanvasProps>(
   ({ comic, onUpdatePanel, onRegenerateImage, onOpenInspector, onMovePanel, onDeletePanel }, ref) => {
+    // Latest ref pattern to stabilize callbacks without causing stale closures
+    const callbacksRef = useRef({ onUpdatePanel, onRegenerateImage, onOpenInspector, onMovePanel, onDeletePanel });
+
+    useEffect(() => {
+      callbacksRef.current = { onUpdatePanel, onRegenerateImage, onOpenInspector, onMovePanel, onDeletePanel };
+    }, [onUpdatePanel, onRegenerateImage, onOpenInspector, onMovePanel, onDeletePanel]);
+
+    const stableOnUpdatePanel = useCallback((updated: ComicPanel) => callbacksRef.current.onUpdatePanel(updated), []);
+    const stableOnRegenerateImage = useCallback((panelId: string) => callbacksRef.current.onRegenerateImage(panelId), []);
+    const stableOnOpenInspector = useCallback((panelId: string) => callbacksRef.current.onOpenInspector(panelId), []);
+    const stableOnMovePanel = useCallback((fromIndex: number, toIndex: number) => callbacksRef.current.onMovePanel(fromIndex, toIndex), []);
+    const stableOnDeletePanel = useCallback((panelId: string) => callbacksRef.current.onDeletePanel(panelId), []);
+
     const layoutDef = COMIC_LAYOUTS.find((l) => l.id === comic.layoutId) || COMIC_LAYOUTS[0];
     const styleDef = COMIC_STYLES.find((s) => s.id === comic.styleId) || COMIC_STYLES[0];
 
@@ -95,11 +108,11 @@ export const ComicCanvas = forwardRef<HTMLDivElement, ComicCanvasProps>(
                   styleId={comic.styleId}
                   index={idx}
                   totalPanels={comic.panels.length}
-                  onUpdatePanel={onUpdatePanel}
-                  onRegenerateImage={onRegenerateImage}
-                  onOpenInspector={onOpenInspector}
-                  onMovePanel={onMovePanel}
-                  onDeletePanel={onDeletePanel}
+                  onUpdatePanel={stableOnUpdatePanel}
+                  onRegenerateImage={stableOnRegenerateImage}
+                  onOpenInspector={stableOnOpenInspector}
+                  onMovePanel={stableOnMovePanel}
+                  onDeletePanel={stableOnDeletePanel}
                   borderWidth={comic.borderWidth}
                   spanClass={spanClass}
                 />

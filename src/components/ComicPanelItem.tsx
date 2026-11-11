@@ -92,6 +92,7 @@ export const ComicPanelItem: React.FC<ComicPanelItemProps> = React.memo(({
   };
 
   const handleDeleteBubble = (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this speech bubble?')) return;
     onUpdatePanel({
       ...panel,
       bubbles: panel.bubbles.filter((b) => b.id !== id),
@@ -126,6 +127,7 @@ export const ComicPanelItem: React.FC<ComicPanelItemProps> = React.memo(({
   };
 
   const handleDeleteSFX = (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this sound effect?')) return;
     onUpdatePanel({
       ...panel,
       sfxList: panel.sfxList.filter((s) => s.id !== id),
@@ -319,7 +321,11 @@ export const ComicPanelItem: React.FC<ComicPanelItemProps> = React.memo(({
               <span>|</span>
               <button
                 type="button"
-                onClick={() => onUpdatePanel({ ...panel, caption: '' })}
+                onClick={() => {
+                  if (window.confirm('Are you sure you want to delete this caption?')) {
+                    onUpdatePanel({ ...panel, caption: '' });
+                  }
+                }}
                 className="text-red-400 hover:text-white font-editorial-mono"
               >
                 Delete

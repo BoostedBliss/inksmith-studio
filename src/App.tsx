@@ -435,6 +435,7 @@ export default function App() {
 
   const handleDeleteComic = (id: string) => {
     if (comics.length <= 1) return;
+    if (!window.confirm('Are you sure you want to delete this comic?')) return;
     const remaining = comics.filter((c) => c.id !== id);
     setComics(remaining);
     if (currentComicId === id) {
