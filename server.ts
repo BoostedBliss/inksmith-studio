@@ -9,16 +9,15 @@ dotenv.config();
 const app = express();
 const PORT = 3000;
 
-// Security Enhancements
-app.disable('x-powered-by'); // Hide Express
+app.disable('x-powered-by');
 app.use((req, res, next) => {
-  res.setHeader('X-Content-Type-Options', 'nosniff'); // Prevent MIME-sniffing
-  res.setHeader('X-Frame-Options', 'DENY'); // Prevent Clickjacking
-  res.setHeader('X-XSS-Protection', '1; mode=block'); // Enable basic XSS filtering
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
   next();
 });
 
-app.use(express.json({ limit: '25mb' }));
+app.use(express.json({ limit: '2mb' }));
 
 // Lazy initializer for Gemini client
 let aiClient: GoogleGenAI | null = null;
