@@ -197,7 +197,6 @@ export const ComicLibraryModal: React.FC<ComicLibraryModalProps> = ({
                     {comics.length > 1 && (
                       <button
                         type="button"
-                        aria-label="Delete Comic"
                         title="Delete Comic"
                         aria-label="Delete Comic"
                         onClick={(e) => {

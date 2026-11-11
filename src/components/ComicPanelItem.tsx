@@ -499,7 +499,6 @@ export const ComicPanelItem: React.FC<ComicPanelItemProps> = React.memo(({
           {totalPanels > 1 && (
             <button
               type="button"
-              aria-label="Delete panel"
               title="Delete Panel"
               aria-label="Delete Panel"
               onClick={(e) => {
