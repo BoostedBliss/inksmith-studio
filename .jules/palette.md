@@ -1,3 +1,3 @@
-## 2024-05-24 - Add Window Confirm for Destructive Actions
-**Learning:** Destructive actions without a confirmation dialogue can lead to accidental data loss and double-prompting bugs if placed in multiple levels.
-**Action:** Guard destructive actions such as deleting comics, panels, bubbles, or sound effects with `window.confirm` dialogues. Place the logic carefully in parent state-updating handlers or child specific handlers, but not both.
+## 2024-05-14 - [Confirmation & A11y for Destructive Actions]
+**Learning:** Destructive actions (like deleting panels, comics, or captions) lacked both confirmation dialogues and proper accessibility labels (`aria-label`). This presented a risk of accidental data loss, particularly for keyboard users, while offering no context for screen readers when focused on icon-only buttons.
+**Action:** Implemented `window.confirm` dialogues and added `aria-label` along with `focus-visible:ring-2` to all delete buttons to prevent accidents and improve navigational clarity. Always ensure destructive actions are guarded and labeled going forward.
