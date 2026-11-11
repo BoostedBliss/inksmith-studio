@@ -92,13 +92,12 @@ export const ComicPanelItem = React.memo<ComicPanelItemProps>(({
   };
 
   const handleDeleteBubble = (id: string) => {
-    if (window.confirm('Are you sure you want to delete this speech bubble?')) {
-      onUpdatePanel({
-        ...panel,
-        bubbles: panel.bubbles.filter((b) => b.id !== id),
-      });
-      if (selectedBubbleId === id) setSelectedBubbleId(null);
-    }
+    if (!window.confirm('Are you sure you want to delete this speech bubble?')) return;
+    onUpdatePanel({
+      ...panel,
+      bubbles: panel.bubbles.filter((b) => b.id !== id),
+    });
+    if (selectedBubbleId === id) setSelectedBubbleId(null);
   };
 
   // Handle SFX actions
@@ -128,13 +127,12 @@ export const ComicPanelItem = React.memo<ComicPanelItemProps>(({
   };
 
   const handleDeleteSFX = (id: string) => {
-    if (window.confirm('Are you sure you want to delete this sound effect?')) {
-      onUpdatePanel({
-        ...panel,
-        sfxList: panel.sfxList.filter((s) => s.id !== id),
-      });
-      if (selectedSfxId === id) setSelectedSfxId(null);
-    }
+    if (!window.confirm('Are you sure you want to delete this sound effect?')) return;
+    onUpdatePanel({
+      ...panel,
+      sfxList: panel.sfxList.filter((s) => s.id !== id),
+    });
+    if (selectedSfxId === id) setSelectedSfxId(null);
   };
 
   // Image Upload Handlers
@@ -323,7 +321,11 @@ export const ComicPanelItem = React.memo<ComicPanelItemProps>(({
               <span>|</span>
               <button
                 type="button"
-                onClick={() => onUpdatePanel({ ...panel, caption: '' })}
+                onClick={() => {
+                  if (window.confirm('Are you sure you want to delete this caption?')) {
+                    onUpdatePanel({ ...panel, caption: '' });
+                  }
+                }}
                 className="text-red-400 hover:text-white font-editorial-mono"
               >
                 Delete
