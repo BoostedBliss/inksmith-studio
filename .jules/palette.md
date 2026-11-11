@@ -1,3 +1,3 @@
-## 2024-03-03 - Guarding Destructive Actions and Accessible Delete Buttons
-**Learning:** Found that several destructive actions (deleting comics, panels, speech bubbles, and SFX) in this app occurred immediately upon clicking delete buttons without any confirmation dialog, creating a high risk of accidental data loss. Furthermore, the icon-only delete buttons lacked `aria-label` attributes and keyboard focus styles. This is a common pattern in the app's components that needs addressing.
-**Action:** Implemented `window.confirm` dialogues for `handleDeleteComic`, `handleDeletePanel`, `handleDeleteBubble`, and `handleDeleteSFX` handlers. Added `aria-label` and `focus-visible:ring-2 focus-visible:ring-red-600 focus:outline-none` classes to the `<button>` tags rendering `<Trash2 />` icons across the app to ensure accessibility for screen readers and keyboard users.
+## 2024-11-04 - Guarding Destructive Actions
+**Learning:** Destructive actions like deleting a comic, panel, speech bubble, or sound effect in this app were happening immediately on click without confirmation, which can lead to accidental data loss and a frustrating user experience.
+**Action:** Always guard destructive actions (such as deletions) with `window.confirm` dialogs or similar confirmation mechanisms to prevent accidental data loss.
