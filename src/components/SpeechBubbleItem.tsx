@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, memo } from 'react';
 import { SpeechBubble, CharacterPositionAnchor } from '../types';
 import {
   MessageSquare,
@@ -24,11 +24,11 @@ interface SpeechBubbleItemProps {
   onUpdate: (updated: SpeechBubble) => void;
   onDelete: (id: string) => void;
   isSelected: boolean;
-  onSelect: () => void;
+  onSelect: (id: string) => void;
   containerRef: React.RefObject<HTMLDivElement | null>;
 }
 
-export const SpeechBubbleItem: React.FC<SpeechBubbleItemProps> = ({
+export const SpeechBubbleItem: React.FC<SpeechBubbleItemProps> = React.memo(({
   bubble,
   onUpdate,
   onDelete,
@@ -52,7 +52,7 @@ export const SpeechBubbleItem: React.FC<SpeechBubbleItemProps> = ({
   const handlePointerDown = (e: React.PointerEvent) => {
     if (isEditing) return;
     e.stopPropagation();
-    onSelect();
+    onSelect(bubble.id);
     setIsDragging(true);
     dragRef.current = {
       startX: e.clientX,
@@ -556,9 +556,10 @@ export const SpeechBubbleItem: React.FC<SpeechBubbleItemProps> = ({
             {/* 6. Delete bubble */}
             <button
               type="button"
+              aria-label="Delete speech bubble"
               title="Delete bubble"
               onClick={() => onDelete(bubble.id)}
-              className="p-1 text-red-500 hover:bg-red-600 hover:text-white"
+              className="p-1 text-red-500 hover:bg-red-600 hover:text-white focus-visible:ring-2 focus-visible:ring-red-600 focus:outline-none"
             >
               <Trash2 className="w-3 h-3" />
             </button>
@@ -567,5 +568,5 @@ export const SpeechBubbleItem: React.FC<SpeechBubbleItemProps> = ({
       </div>
     </div>
   );
-};
+});
 

@@ -290,10 +290,12 @@ export const PanelInspector: React.FC<PanelInspectorProps> = ({
                       <button
                         type="button"
                         onClick={() => {
-                          onUpdatePanel({
-                            ...panel,
-                            bubbles: panel.bubbles.filter((item) => item.id !== b.id),
-                          });
+                          if (window.confirm('Are you sure you want to delete this speech bubble?')) {
+                            onUpdatePanel({
+                              ...panel,
+                              bubbles: panel.bubbles.filter((item) => item.id !== b.id),
+                            });
+                          }
                         }}
                         className="px-1.5 py-0.5 text-[10px] text-red-600 hover:bg-red-600 hover:text-white border border-red-600"
                         title="Delete Bubble"

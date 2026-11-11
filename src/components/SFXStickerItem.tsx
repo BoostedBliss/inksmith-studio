@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, memo } from 'react';
 import { ComicSFX, SFXColor, SFXStyle } from '../types';
 import { Trash2, RotateCw, Palette, Sparkles } from 'lucide-react';
 
@@ -7,11 +7,11 @@ interface SFXStickerItemProps {
   onUpdate: (updated: ComicSFX) => void;
   onDelete: (id: string) => void;
   isSelected: boolean;
-  onSelect: () => void;
+  onSelect: (id: string) => void;
   containerRef: React.RefObject<HTMLDivElement | null>;
 }
 
-export const SFXStickerItem: React.FC<SFXStickerItemProps> = ({
+export const SFXStickerItem: React.FC<SFXStickerItemProps> = React.memo(({
   sfx,
   onUpdate,
   onDelete,
@@ -25,7 +25,7 @@ export const SFXStickerItem: React.FC<SFXStickerItemProps> = ({
 
   const handlePointerDown = (e: React.PointerEvent) => {
     e.stopPropagation();
-    onSelect();
+    onSelect(sfx.id);
     setIsDragging(true);
     dragRef.current = {
       startX: e.clientX,
@@ -187,9 +187,10 @@ export const SFXStickerItem: React.FC<SFXStickerItemProps> = ({
 
             <button
               type="button"
+              aria-label="Delete sound effect"
               title="Delete SFX"
               onClick={() => onDelete(sfx.id)}
-              className="p-0.5 text-red-400 hover:text-red-300"
+              className="p-0.5 text-red-400 hover:text-red-300 focus-visible:ring-2 focus-visible:ring-red-600 focus:outline-none"
             >
               <Trash2 className="w-3 h-3" />
             </button>
@@ -198,4 +199,4 @@ export const SFXStickerItem: React.FC<SFXStickerItemProps> = ({
       </div>
     </div>
   );
-};
+});

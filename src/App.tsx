@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ComicStrip, ComicPanel, ComicStyleId, ComicLayoutId } from './types';
 import { SAMPLE_INITIAL_COMIC, COMIC_STYLES, COMIC_LAYOUTS } from './data/comicPresets';
 import { ComicCanvas } from './components/ComicCanvas';
@@ -47,8 +47,14 @@ export default function App() {
 
   const canvasRef = useRef<HTMLDivElement>(null);
 
+
   // Current active comic
   const currentComic = comics.find((c) => c.id === currentComicId) || comics[0] || SAMPLE_INITIAL_COMIC;
+
+  const currentComicRef = useRef(currentComic);
+  useEffect(() => {
+    currentComicRef.current = currentComic;
+  }, [currentComic]);
 
   // Persist to localStorage
   useEffect(() => {
@@ -62,40 +68,44 @@ export default function App() {
     return () => clearTimeout(timeoutId);
   }, [comics]);
 
+  // ⚡ Bolt Optimization: Use useCallback and functional state update to keep reference stable
   // Update current comic helper
-  const handleUpdateComic = (updated: ComicStrip) => {
+  const handleUpdateComic = useCallback((updated: ComicStrip) => {
     setComics((prev) => prev.map((c) => (c.id === updated.id ? updated : c)));
-  };
+  }, []);
 
+  // ⚡ Bolt Optimization: Wrap handleUpdatePanel in useCallback and use functional state update
+  // to avoid recreating the function on every render, allowing child React.memo to work
   // Update single panel in current comic
-  const handleUpdatePanel = (updatedPanel: ComicPanel) => {
-    const updatedPanels = currentComic.panels.map((p) => (p.id === updatedPanel.id ? updatedPanel : p));
-    handleUpdateComic({
-      ...currentComic,
-      panels: updatedPanels,
-      updatedAt: Date.now(),
-    });
-  };
+  const handleUpdatePanel = useCallback((updatedPanel: ComicPanel) => {
+    setComics((prev) => prev.map((c) => {
+      if (c.id !== currentComicId) return c;
+      const updatedPanels = c.panels.map((p) => (p.id === updatedPanel.id ? updatedPanel : p));
+      return { ...c, panels: updatedPanels, updatedAt: Date.now() };
+    }));
+  }, [currentComicId]);
 
   // Move panel order
-  const handleMovePanel = (fromIndex: number, toIndex: number) => {
-    if (toIndex < 0 || toIndex >= currentComic.panels.length) return;
-    const newPanels = [...currentComic.panels];
-    const [moved] = newPanels.splice(fromIndex, 1);
-    newPanels.splice(toIndex, 0, moved);
-    // Renumber
-    const renumbered = newPanels.map((p, i) => ({ ...p, panelNumber: i + 1 }));
-    handleUpdateComic({ ...currentComic, panels: renumbered });
-  };
+  const handleMovePanel = useCallback((fromIndex: number, toIndex: number) => {
+    setComics((prev) => prev.map((c) => {
+      if (c.id !== currentComicId) return c;
+      if (toIndex < 0 || toIndex >= c.panels.length) return c;
+      const newPanels = [...c.panels];
+      const [moved] = newPanels.splice(fromIndex, 1);
+      newPanels.splice(toIndex, 0, moved);
+      const renumbered = newPanels.map((p, i) => ({ ...p, panelNumber: i + 1 }));
+      return { ...c, panels: renumbered, updatedAt: Date.now() };
+    }));
+  }, [currentComicId]);
 
   // Delete panel
-  const handleDeletePanel = (panelId: string) => {
-    if (currentComic.panels.length <= 1) return;
-    const newPanels = currentComic.panels
-      .filter((p) => p.id !== panelId)
-      .map((p, i) => ({ ...p, panelNumber: i + 1 }));
-    handleUpdateComic({ ...currentComic, panels: newPanels });
-  };
+  const handleDeletePanel = useCallback((panelId: string) => {
+    setComics((prev) => prev.map((c) => {
+      if (c.id !== currentComicId || c.panels.length <= 1) return c;
+      const newPanels = c.panels.filter((p) => p.id !== panelId).map((p, i) => ({ ...p, panelNumber: i + 1 }));
+      return { ...c, panels: newPanels, updatedAt: Date.now() };
+    }));
+  }, [currentComicId]);
 
   // Add blank panel
   const handleAddPanel = () => {
@@ -141,48 +151,58 @@ export default function App() {
   };
 
   // Regenerate single panel image using server API
-  const handleRegenerateImage = async (panelId: string) => {
-    const panel = currentComic.panels.find((p) => p.id === panelId);
+  const handleRegenerateImage = useCallback(async (panelId: string) => {
+    const currentPanels = currentComicRef.current.panels;
+    const panel = currentPanels.find((p) => p.id === panelId);
     if (!panel) return;
 
     // Mark as generating
     handleUpdatePanel({ ...panel, imageStatus: 'generating' });
 
     try {
-      const styleDef = COMIC_STYLES.find((s) => s.id === currentComic.styleId);
+      const styleDef = COMIC_STYLES.find((s) => s.id === currentComicRef.current.styleId);
       const res = await fetch('/api/comic/generate-panel', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          prompt: panel.scenePrompt,
-          stylePrompt: styleDef?.promptModifier || '',
+          prompt: panelPrompt,
+          stylePrompt: stylePromptModifier,
           aspectRatio: '1:1',
         }),
       });
 
       const data = await res.json();
-      if (data.imageUrl) {
-        handleUpdatePanel({
-          ...panel,
-          imageUrl: data.imageUrl,
-          imageStatus: 'done',
-        });
-      } else {
-        // Procedural vector fallback
-        handleUpdatePanel({
-          ...panel,
-          imageUrl: '',
-          imageStatus: 'done',
-        });
-      }
+
+      setComics((prev) => {
+        const currentActiveComic = prev.find((c) => c.id === currentComicId);
+        if (!currentActiveComic) return prev;
+        const currentPanel = currentActiveComic.panels.find((p) => p.id === panelId);
+        if (!currentPanel) return prev;
+
+        const updatedPanels = currentActiveComic.panels.map((p) =>
+          p.id === panelId ? {
+            ...currentPanel,
+            imageUrl: data.imageUrl || '',
+            imageStatus: 'done' as const
+          } : p
+        );
+        return prev.map((c) => c.id === currentComicId ? { ...c, panels: updatedPanels } : c);
+      });
     } catch (err: any) {
       console.error('Error generating image:', err);
-      handleUpdatePanel({
-        ...panel,
-        imageStatus: 'done',
+      setComics((prev) => {
+        const currentActiveComic = prev.find((c) => c.id === currentComicId);
+        if (!currentActiveComic) return prev;
+        const currentPanel = currentActiveComic.panels.find((p) => p.id === panelId);
+        if (!currentPanel) return prev;
+
+        const updatedPanels = currentActiveComic.panels.map((p) =>
+          p.id === panelId ? { ...currentPanel, imageStatus: 'done' as const } : p
+        );
+        return prev.map((c) => c.id === currentComicId ? { ...c, panels: updatedPanels } : c);
       });
     }
-  };
+  }, [handleUpdatePanel]);
 
   // AI Script Enhancement / Expansion
   const handleEnhanceScript = async (idea: string) => {
@@ -420,10 +440,12 @@ export default function App() {
 
   const handleDeleteComic = (id: string) => {
     if (comics.length <= 1) return;
-    const remaining = comics.filter((c) => c.id !== id);
-    setComics(remaining);
-    if (currentComicId === id) {
-      setCurrentComicId(remaining[0].id);
+    if (window.confirm('Are you sure you want to delete this comic?')) {
+      const remaining = comics.filter((c) => c.id !== id);
+      setComics(remaining);
+      if (currentComicId === id) {
+        setCurrentComicId(remaining[0].id);
+      }
     }
   };
 
@@ -440,6 +462,7 @@ export default function App() {
   };
 
   const inspectingPanel = currentComic.panels.find((p) => p.id === inspectingPanelId) || null;
+  const handleOpenInspector = useCallback((panelId: string) => setInspectingPanelId(panelId), []);
 
   return (
     <div className="min-h-screen bg-[#f2f2f2] text-[#1a1a1a] flex flex-col font-sans selection:bg-red-600 selection:text-white">
@@ -517,7 +540,7 @@ export default function App() {
             comic={currentComic}
             onUpdatePanel={handleUpdatePanel}
             onRegenerateImage={handleRegenerateImage}
-            onOpenInspector={(panelId) => setInspectingPanelId(panelId)}
+            onOpenInspector={setInspectingPanelId}
             onMovePanel={handleMovePanel}
             onDeletePanel={handleDeletePanel}
           />
