@@ -47,6 +47,7 @@ export default function App() {
 
   const canvasRef = useRef<HTMLDivElement>(null);
 
+
   // Current active comic
   const currentComic = comics.find((c) => c.id === currentComicId) || comics[0] || SAMPLE_INITIAL_COMIC;
 
@@ -67,11 +68,14 @@ export default function App() {
     return () => clearTimeout(timeoutId);
   }, [comics]);
 
+  // ⚡ Bolt Optimization: Use useCallback and functional state update to keep reference stable
   // Update current comic helper
-  const handleUpdateComic = (updated: ComicStrip) => {
+  const handleUpdateComic = useCallback((updated: ComicStrip) => {
     setComics((prev) => prev.map((c) => (c.id === updated.id ? updated : c)));
-  };
+  }, []);
 
+  // ⚡ Bolt Optimization: Wrap handleUpdatePanel in useCallback and use functional state update
+  // to avoid recreating the function on every render, allowing child React.memo to work
   // Update single panel in current comic
   const handleUpdatePanel = useCallback((updatedPanel: ComicPanel) => {
     setComics((prev) => prev.map((c) => {
@@ -161,32 +165,41 @@ export default function App() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          prompt: panel.scenePrompt,
-          stylePrompt: styleDef?.promptModifier || '',
+          prompt: panelPrompt,
+          stylePrompt: stylePromptModifier,
           aspectRatio: '1:1',
         }),
       });
 
       const data = await res.json();
-      if (data.imageUrl) {
-        handleUpdatePanel({
-          ...panel,
-          imageUrl: data.imageUrl,
-          imageStatus: 'done',
-        });
-      } else {
-        // Procedural vector fallback
-        handleUpdatePanel({
-          ...panel,
-          imageUrl: '',
-          imageStatus: 'done',
-        });
-      }
+
+      setComics((prev) => {
+        const currentActiveComic = prev.find((c) => c.id === currentComicId);
+        if (!currentActiveComic) return prev;
+        const currentPanel = currentActiveComic.panels.find((p) => p.id === panelId);
+        if (!currentPanel) return prev;
+
+        const updatedPanels = currentActiveComic.panels.map((p) =>
+          p.id === panelId ? {
+            ...currentPanel,
+            imageUrl: data.imageUrl || '',
+            imageStatus: 'done' as const
+          } : p
+        );
+        return prev.map((c) => c.id === currentComicId ? { ...c, panels: updatedPanels } : c);
+      });
     } catch (err: any) {
       console.error('Error generating image:', err);
-      handleUpdatePanel({
-        ...panel,
-        imageStatus: 'done',
+      setComics((prev) => {
+        const currentActiveComic = prev.find((c) => c.id === currentComicId);
+        if (!currentActiveComic) return prev;
+        const currentPanel = currentActiveComic.panels.find((p) => p.id === panelId);
+        if (!currentPanel) return prev;
+
+        const updatedPanels = currentActiveComic.panels.map((p) =>
+          p.id === panelId ? { ...currentPanel, imageStatus: 'done' as const } : p
+        );
+        return prev.map((c) => c.id === currentComicId ? { ...c, panels: updatedPanels } : c);
       });
     }
   }, [handleUpdatePanel]);
@@ -427,10 +440,12 @@ export default function App() {
 
   const handleDeleteComic = (id: string) => {
     if (comics.length <= 1) return;
-    const remaining = comics.filter((c) => c.id !== id);
-    setComics(remaining);
-    if (currentComicId === id) {
-      setCurrentComicId(remaining[0].id);
+    if (window.confirm('Are you sure you want to delete this comic?')) {
+      const remaining = comics.filter((c) => c.id !== id);
+      setComics(remaining);
+      if (currentComicId === id) {
+        setCurrentComicId(remaining[0].id);
+      }
     }
   };
 
@@ -447,6 +462,7 @@ export default function App() {
   };
 
   const inspectingPanel = currentComic.panels.find((p) => p.id === inspectingPanelId) || null;
+  const handleOpenInspector = useCallback((panelId: string) => setInspectingPanelId(panelId), []);
 
   return (
     <div className="min-h-screen bg-[#f2f2f2] text-[#1a1a1a] flex flex-col font-sans selection:bg-red-600 selection:text-white">
@@ -524,7 +540,7 @@ export default function App() {
             comic={currentComic}
             onUpdatePanel={handleUpdatePanel}
             onRegenerateImage={handleRegenerateImage}
-            onOpenInspector={(panelId) => setInspectingPanelId(panelId)}
+            onOpenInspector={setInspectingPanelId}
             onMovePanel={handleMovePanel}
             onDeletePanel={handleDeletePanel}
           />
