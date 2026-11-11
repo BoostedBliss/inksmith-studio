@@ -30,7 +30,7 @@ interface ComicPanelItemProps {
   spanClass?: string;
 }
 
-export const ComicPanelItem: React.FC<ComicPanelItemProps> = ({
+export const ComicPanelItem: React.FC<ComicPanelItemProps> = React.memo(({
   panel,
   styleId,
   index,
@@ -92,6 +92,7 @@ export const ComicPanelItem: React.FC<ComicPanelItemProps> = ({
   };
 
   const handleDeleteBubble = (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this speech bubble?')) return;
     onUpdatePanel({
       ...panel,
       bubbles: panel.bubbles.filter((b) => b.id !== id),
@@ -126,6 +127,7 @@ export const ComicPanelItem: React.FC<ComicPanelItemProps> = ({
   };
 
   const handleDeleteSFX = (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this sound effect?')) return;
     onUpdatePanel({
       ...panel,
       sfxList: panel.sfxList.filter((s) => s.id !== id),
@@ -513,4 +515,6 @@ export const ComicPanelItem: React.FC<ComicPanelItemProps> = ({
       </div>
     </div>
   );
-};
+});
+
+ComicPanelItem.displayName = 'ComicPanelItem';
