@@ -47,8 +47,19 @@ export default function App() {
 
   const canvasRef = useRef<HTMLDivElement>(null);
 
+  const comicsRef = useRef(comics);
+  useEffect(() => {
+    comicsRef.current = comics;
+  }, [comics]);
+
   // Current active comic
   const currentComic = comics.find((c) => c.id === currentComicId) || comics[0] || SAMPLE_INITIAL_COMIC;
+
+  // Latest ref pattern to avoid stale closures in callbacks
+  const currentComicRef = useRef(currentComic);
+  useEffect(() => {
+    currentComicRef.current = currentComic;
+  }, [currentComic]);
 
   // Persist to localStorage
   useEffect(() => {
@@ -171,8 +182,23 @@ export default function App() {
     const panel = activeComic?.panels.find((p) => p.id === panelId);
     if (!panel || !activeComic) return;
 
-    // Mark as generating
-    handleUpdatePanel({ ...panel, imageStatus: 'generating' });
+    const panelPrompt = panel.scenePrompt;
+    const styleDef = COMIC_STYLES.find((s) => s.id === activeComic.styleId);
+    const stylePromptModifier = styleDef?.promptModifier || '';
+
+    setComics((prev) => {
+      const currentActiveComic = prev.find((c) => c.id === currentComicId);
+      if (!currentActiveComic) return prev;
+      const currentPanel = currentActiveComic.panels.find((p) => p.id === panelId);
+      if (!currentPanel) return prev;
+
+      // Mark as generating
+      const updatedPanels = currentActiveComic.panels.map((p) =>
+        p.id === panelId ? { ...currentPanel, imageStatus: 'generating' as const } : p
+      );
+
+      return prev.map((c) => c.id === currentComicId ? { ...c, panels: updatedPanels } : c);
+    });
 
     try {
       const styleDef = COMIC_STYLES.find((s) => s.id === activeComic.styleId);
@@ -180,32 +206,41 @@ export default function App() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          prompt: panel.scenePrompt,
-          stylePrompt: styleDef?.promptModifier || '',
+          prompt: panelPrompt,
+          stylePrompt: stylePromptModifier,
           aspectRatio: '1:1',
         }),
       });
 
       const data = await res.json();
-      if (data.imageUrl) {
-        handleUpdatePanel({
-          ...panel,
-          imageUrl: data.imageUrl,
-          imageStatus: 'done',
-        });
-      } else {
-        // Procedural vector fallback
-        handleUpdatePanel({
-          ...panel,
-          imageUrl: '',
-          imageStatus: 'done',
-        });
-      }
+
+      setComics((prev) => {
+        const currentActiveComic = prev.find((c) => c.id === currentComicId);
+        if (!currentActiveComic) return prev;
+        const currentPanel = currentActiveComic.panels.find((p) => p.id === panelId);
+        if (!currentPanel) return prev;
+
+        const updatedPanels = currentActiveComic.panels.map((p) =>
+          p.id === panelId ? {
+            ...currentPanel,
+            imageUrl: data.imageUrl || '',
+            imageStatus: 'done' as const
+          } : p
+        );
+        return prev.map((c) => c.id === currentComicId ? { ...c, panels: updatedPanels } : c);
+      });
     } catch (err: any) {
       console.error('Error generating image:', err);
-      handleUpdatePanel({
-        ...panel,
-        imageStatus: 'done',
+      setComics((prev) => {
+        const currentActiveComic = prev.find((c) => c.id === currentComicId);
+        if (!currentActiveComic) return prev;
+        const currentPanel = currentActiveComic.panels.find((p) => p.id === panelId);
+        if (!currentPanel) return prev;
+
+        const updatedPanels = currentActiveComic.panels.map((p) =>
+          p.id === panelId ? { ...currentPanel, imageStatus: 'done' as const } : p
+        );
+        return prev.map((c) => c.id === currentComicId ? { ...c, panels: updatedPanels } : c);
       });
     }
   }, [comics, currentComicId, handleUpdatePanel]);
@@ -446,6 +481,7 @@ export default function App() {
 
   const handleDeleteComic = (id: string) => {
     if (comics.length <= 1) return;
+    if (!window.confirm('Are you sure you want to delete this comic?')) return;
     const remaining = comics.filter((c) => c.id !== id);
     setComics(remaining);
     if (currentComicId === id) {
@@ -543,7 +579,7 @@ export default function App() {
             comic={currentComic}
             onUpdatePanel={handleUpdatePanel}
             onRegenerateImage={handleRegenerateImage}
-            onOpenInspector={(panelId) => setInspectingPanelId(panelId)}
+            onOpenInspector={setInspectingPanelId}
             onMovePanel={handleMovePanel}
             onDeletePanel={handleDeletePanel}
           />
