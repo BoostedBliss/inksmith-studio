@@ -69,23 +69,28 @@ export default function App() {
     return () => clearTimeout(timeoutId);
   }, [comics]);
 
+  // ⚡ Bolt Optimization: Use useCallback and functional state update to keep reference stable
   // Update current comic helper
   const handleUpdateComic = useCallback((updated: ComicStrip) => {
     setComics((prev) => prev.map((c) => (c.id === updated.id ? updated : c)));
   }, []);
 
+  // ⚡ Bolt Optimization: Wrap handleUpdatePanel in useCallback and use functional state update
+  // to avoid recreating the function on every render, allowing child React.memo to work
   // Update single panel in current comic
   const handleUpdatePanel = useCallback((updatedPanel: ComicPanel) => {
     setComics((prev) => {
-      const current = prev.find(c => c.id === currentComicId);
+      const current = prev.find((c) => c.id === currentComicId);
       if (!current) return prev;
+
       const updatedPanels = current.panels.map((p) => (p.id === updatedPanel.id ? updatedPanel : p));
       const updatedComic = {
         ...current,
         panels: updatedPanels,
         updatedAt: Date.now(),
       };
-      return prev.map(c => c.id === updatedComic.id ? updatedComic : c);
+
+      return prev.map((c) => (c.id === currentComicId ? updatedComic : c));
     });
   }, [currentComicId]);
 

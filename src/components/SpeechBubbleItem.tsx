@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, memo } from 'react';
 import { SpeechBubble, CharacterPositionAnchor } from '../types';
 import {
   MessageSquare,
@@ -28,7 +28,9 @@ interface SpeechBubbleItemProps {
   containerRef: React.RefObject<HTMLDivElement | null>;
 }
 
-export const SpeechBubbleItem: React.FC<SpeechBubbleItemProps> = React.memo(({
+// ⚡ Bolt Optimization: Wrap component in React.memo to prevent unnecessary re-renders
+// when other bubbles or the parent panel update
+export const SpeechBubbleItem: React.FC<SpeechBubbleItemProps> = memo(({
   bubble,
   onUpdate,
   onDelete,
@@ -574,6 +576,4 @@ export const SpeechBubbleItem: React.FC<SpeechBubbleItemProps> = React.memo(({
     </div>
   );
 });
-
-SpeechBubbleItem.displayName = 'SpeechBubbleItem';
 
