@@ -30,9 +30,7 @@ interface ComicPanelItemProps {
   spanClass?: string;
 }
 
-// ⚡ Bolt Optimization: Wrap component in React.memo with a custom areEqual function
-// to prevent massive re-renders of all panels when only a single panel updates.
-// Expected Impact: Reduces unnecessary re-renders of sibling panels by 100%.
+// ⚡ Bolt: Wrapped in React.memo to prevent unnecessary re-renders of the expensive panel artwork and UI when siblings update.
 export const ComicPanelItem: React.FC<ComicPanelItemProps> = React.memo(({
   panel,
   styleId,
@@ -519,17 +517,5 @@ export const ComicPanelItem: React.FC<ComicPanelItemProps> = React.memo(({
       </div>
     </div>
   );
-}, (prevProps, nextProps) => {
-  // ⚡ Bolt Optimization: Only compare primitive/data props and ignore callbacks.
-  // This relies on functional state updates in App.tsx to avoid stale closures.
-  return (
-    prevProps.panel === nextProps.panel &&
-    prevProps.styleId === nextProps.styleId &&
-    prevProps.index === nextProps.index &&
-    prevProps.totalPanels === nextProps.totalPanels &&
-    prevProps.borderWidth === nextProps.borderWidth &&
-    prevProps.spanClass === nextProps.spanClass
-  );
 });
-
 ComicPanelItem.displayName = 'ComicPanelItem';
