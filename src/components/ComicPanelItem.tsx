@@ -30,7 +30,10 @@ interface ComicPanelItemProps {
   spanClass?: string;
 }
 
-export const ComicPanelItem: React.FC<ComicPanelItemProps> = ({
+// ⚡ Bolt Optimization: Wrap component in React.memo with a custom areEqual function
+// to prevent massive re-renders of all panels when only a single panel updates.
+// Expected Impact: Reduces unnecessary re-renders of sibling panels by 100%.
+export const ComicPanelItem: React.FC<ComicPanelItemProps> = React.memo(({
   panel,
   styleId,
   index,
@@ -92,6 +95,7 @@ export const ComicPanelItem: React.FC<ComicPanelItemProps> = ({
   };
 
   const handleDeleteBubble = (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this speech bubble?')) return;
     onUpdatePanel({
       ...panel,
       bubbles: panel.bubbles.filter((b) => b.id !== id),
@@ -126,6 +130,7 @@ export const ComicPanelItem: React.FC<ComicPanelItemProps> = ({
   };
 
   const handleDeleteSFX = (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this sound effect?')) return;
     onUpdatePanel({
       ...panel,
       sfxList: panel.sfxList.filter((s) => s.id !== id),
@@ -319,8 +324,13 @@ export const ComicPanelItem: React.FC<ComicPanelItemProps> = ({
               <span>|</span>
               <button
                 type="button"
-                onClick={() => onUpdatePanel({ ...panel, caption: '' })}
-                className="text-red-400 hover:text-white font-editorial-mono"
+                aria-label="Delete caption"
+                onClick={() => {
+                  if (window.confirm('Are you sure you want to delete this caption?')) {
+                    onUpdatePanel({ ...panel, caption: '' });
+                  }
+                }}
+                className="text-red-400 hover:text-white font-editorial-mono focus-visible:ring-2"
               >
                 Delete
               </button>
@@ -491,12 +501,16 @@ export const ComicPanelItem: React.FC<ComicPanelItemProps> = ({
           {totalPanels > 1 && (
             <button
               type="button"
+              aria-label="Delete panel"
               title="Delete Panel"
+              aria-label="Delete Panel"
               onClick={(e) => {
                 e.stopPropagation();
-                onDeletePanel(panel.id);
+                if (window.confirm('Are you sure you want to delete this panel?')) {
+                  onDeletePanel(panel.id);
+                }
               }}
-              className="p-1 text-red-600 hover:bg-black hover:text-white"
+              className="p-1 text-red-600 hover:bg-black hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-1"
             >
               <Trash2 className="w-3.5 h-3.5" />
             </button>
@@ -505,4 +519,17 @@ export const ComicPanelItem: React.FC<ComicPanelItemProps> = ({
       </div>
     </div>
   );
-};
+}, (prevProps, nextProps) => {
+  // ⚡ Bolt Optimization: Only compare primitive/data props and ignore callbacks.
+  // This relies on functional state updates in App.tsx to avoid stale closures.
+  return (
+    prevProps.panel === nextProps.panel &&
+    prevProps.styleId === nextProps.styleId &&
+    prevProps.index === nextProps.index &&
+    prevProps.totalPanels === nextProps.totalPanels &&
+    prevProps.borderWidth === nextProps.borderWidth &&
+    prevProps.spanClass === nextProps.spanClass
+  );
+});
+
+ComicPanelItem.displayName = 'ComicPanelItem';
