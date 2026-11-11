@@ -9,19 +9,19 @@ dotenv.config();
 const app = express();
 const PORT = 3000;
 
-// Security hardening: disable x-powered-by header
+// Security: Disable x-powered-by header to avoid revealing framework details
 app.disable('x-powered-by');
 
-// Security hardening: add standard security headers
-app.use((req: Request, res: Response, next) => {
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('X-Frame-Options', 'DENY');
-  res.setHeader('X-XSS-Protection', '1; mode=block');
+// Security: Add basic security headers
+app.use((req: Request, res: Response, next: express.NextFunction) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff'); // Prevent MIME type sniffing
+  res.setHeader('X-Frame-Options', 'DENY'); // Prevent clickjacking
+  res.setHeader('X-XSS-Protection', '1; mode=block'); // Basic XSS protection
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains'); // Enforce HTTPS
   next();
 });
 
-// Security hardening: restrict payload size to mitigate DoS
-app.use(express.json({ limit: '2mb' }));
+app.use(express.json({ limit: '25mb' }));
 
 // Lazy initializer for Gemini client
 let aiClient: GoogleGenAI | null = null;
