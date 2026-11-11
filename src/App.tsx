@@ -109,17 +109,14 @@ export default function App() {
   }, [currentComicId]);
 
   // Delete panel
-  const handleDeletePanel = useCallback((panelId: string) => {
-    setComics((prev) => {
-      const current = prev.find(c => c.id === currentComicId);
-      if (!current || current.panels.length <= 1) return prev;
-      const newPanels = current.panels
-        .filter((p) => p.id !== panelId)
-        .map((p, i) => ({ ...p, panelNumber: i + 1 }));
-      const updatedComic = { ...current, panels: newPanels, updatedAt: Date.now() };
-      return prev.map(c => c.id === updatedComic.id ? updatedComic : c);
-    });
-  }, [currentComicId]);
+  const handleDeletePanel = (panelId: string) => {
+    if (currentComic.panels.length <= 1) return;
+    if (!window.confirm('Are you sure you want to delete this panel?')) return;
+    const newPanels = currentComic.panels
+      .filter((p) => p.id !== panelId)
+      .map((p, i) => ({ ...p, panelNumber: i + 1 }));
+    handleUpdateComic({ ...currentComic, panels: newPanels });
+  };
 
   // Add blank panel
   const handleAddPanel = () => {
