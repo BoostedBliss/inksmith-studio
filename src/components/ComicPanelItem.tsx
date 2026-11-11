@@ -30,7 +30,7 @@ interface ComicPanelItemProps {
   spanClass?: string;
 }
 
-export const ComicPanelItem: React.FC<ComicPanelItemProps> = ({
+export const ComicPanelItem: React.FC<ComicPanelItemProps> = React.memo(({
   panel,
   styleId,
   index,
@@ -92,6 +92,7 @@ export const ComicPanelItem: React.FC<ComicPanelItemProps> = ({
   };
 
   const handleDeleteBubble = (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this speech bubble?')) return;
     onUpdatePanel({
       ...panel,
       bubbles: panel.bubbles.filter((b) => b.id !== id),
@@ -126,6 +127,7 @@ export const ComicPanelItem: React.FC<ComicPanelItemProps> = ({
   };
 
   const handleDeleteSFX = (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this sound effect?')) return;
     onUpdatePanel({
       ...panel,
       sfxList: panel.sfxList.filter((s) => s.id !== id),
@@ -319,8 +321,13 @@ export const ComicPanelItem: React.FC<ComicPanelItemProps> = ({
               <span>|</span>
               <button
                 type="button"
-                onClick={() => onUpdatePanel({ ...panel, caption: '' })}
-                className="text-red-400 hover:text-white font-editorial-mono"
+                aria-label="Delete caption"
+                onClick={() => {
+                  if (window.confirm('Are you sure you want to delete this caption?')) {
+                    onUpdatePanel({ ...panel, caption: '' });
+                  }
+                }}
+                className="text-red-400 hover:text-white font-editorial-mono focus-visible:ring-2"
               >
                 Delete
               </button>
@@ -491,6 +498,7 @@ export const ComicPanelItem: React.FC<ComicPanelItemProps> = ({
           {totalPanels > 1 && (
             <button
               type="button"
+              aria-label="Delete panel"
               title="Delete Panel"
               aria-label="Delete Panel"
               onClick={(e) => {
@@ -508,4 +516,6 @@ export const ComicPanelItem: React.FC<ComicPanelItemProps> = ({
       </div>
     </div>
   );
-};
+});
+
+ComicPanelItem.displayName = 'ComicPanelItem';
