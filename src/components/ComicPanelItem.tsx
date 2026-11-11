@@ -30,7 +30,7 @@ interface ComicPanelItemProps {
   spanClass?: string;
 }
 
-export const ComicPanelItem = React.memo<ComicPanelItemProps>(({
+export const ComicPanelItem: React.FC<ComicPanelItemProps> = React.memo(({
   panel,
   styleId,
   index,
