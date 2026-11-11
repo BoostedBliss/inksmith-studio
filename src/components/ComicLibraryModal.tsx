@@ -172,6 +172,7 @@ export const ComicLibraryModal: React.FC<ComicLibraryModalProps> = ({
                       type="button"
                       aria-label={`Download JSON for ${c.title || 'Untitled Comic'}`}
                       title="Download JSON"
+                      aria-label={`Download ${c.title || 'Untitled Comic'}`}
                       onClick={(e) => {
                         e.stopPropagation();
                         handleExportJSON(c);
@@ -185,6 +186,7 @@ export const ComicLibraryModal: React.FC<ComicLibraryModalProps> = ({
                       type="button"
                       aria-label={`Duplicate ${c.title || 'Untitled Comic'}`}
                       title="Duplicate Comic"
+                      aria-label={`Duplicate ${c.title || 'Untitled Comic'}`}
                       onClick={(e) => {
                         e.stopPropagation();
                         onDuplicateComic(c.id);
@@ -199,6 +201,7 @@ export const ComicLibraryModal: React.FC<ComicLibraryModalProps> = ({
                         type="button"
                         aria-label={`Delete ${c.title || 'Untitled Comic'}`}
                         title="Delete Comic"
+                        aria-label="Delete Comic"
                         onClick={(e) => {
                           e.stopPropagation();
                           if (window.confirm(`Are you sure you want to delete "${c.title || 'Untitled Comic'}"? This action cannot be undone.`)) {

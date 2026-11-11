@@ -9,6 +9,18 @@ dotenv.config();
 const app = express();
 const PORT = 3000;
 
+// Security: Disable x-powered-by header to avoid revealing framework details
+app.disable('x-powered-by');
+
+// Security: Add basic security headers
+app.use((req: Request, res: Response, next: express.NextFunction) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff'); // Prevent MIME type sniffing
+  res.setHeader('X-Frame-Options', 'DENY'); // Prevent clickjacking
+  res.setHeader('X-XSS-Protection', '1; mode=block'); // Basic XSS protection
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains'); // Enforce HTTPS
+  next();
+});
+
 app.use(express.json({ limit: '25mb' }));
 
 // Lazy initializer for Gemini client
