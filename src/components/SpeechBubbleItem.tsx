@@ -28,7 +28,6 @@ interface SpeechBubbleItemProps {
   containerRef: React.RefObject<HTMLDivElement | null>;
 }
 
-// ⚡ Bolt: Wrapped in React.memo to prevent unnecessary re-renders during dragging of other bubbles or SFX.
 export const SpeechBubbleItem: React.FC<SpeechBubbleItemProps> = React.memo(({
   bubble,
   onUpdate,
@@ -575,5 +574,6 @@ export const SpeechBubbleItem: React.FC<SpeechBubbleItemProps> = React.memo(({
     </div>
   );
 });
+
 SpeechBubbleItem.displayName = 'SpeechBubbleItem';
 

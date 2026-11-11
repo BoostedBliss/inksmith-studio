@@ -11,7 +11,6 @@ interface SFXStickerItemProps {
   containerRef: React.RefObject<HTMLDivElement | null>;
 }
 
-// ⚡ Bolt: Wrapped in React.memo to prevent unnecessary re-renders during dragging of other SFX or bubbles.
 export const SFXStickerItem: React.FC<SFXStickerItemProps> = React.memo(({
   sfx,
   onUpdate,
@@ -205,4 +204,5 @@ export const SFXStickerItem: React.FC<SFXStickerItemProps> = React.memo(({
     </div>
   );
 });
+
 SFXStickerItem.displayName = 'SFXStickerItem';

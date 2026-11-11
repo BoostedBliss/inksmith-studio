@@ -47,10 +47,6 @@ export default function App() {
 
   const canvasRef = useRef<HTMLDivElement>(null);
 
-  const comicsRef = useRef(comics);
-  useEffect(() => {
-    comicsRef.current = comics;
-  }, [comics]);
 
   // Current active comic
   const currentComic = comics.find((c) => c.id === currentComicId) || comics[0] || SAMPLE_INITIAL_COMIC;
@@ -59,6 +55,7 @@ export default function App() {
   useEffect(() => {
     currentComicRef.current = currentComic;
   }, [currentComic]);
+
 
   // Persist to localStorage
   useEffect(() => {
@@ -79,44 +76,45 @@ export default function App() {
 
   // Update single panel in current comic
   const handleUpdatePanel = useCallback((updatedPanel: ComicPanel) => {
-    setComics((prev) => prev.map(c => {
-      if (c.id === currentComicRef.current.id) {
-        return {
-          ...c,
-          panels: c.panels.map(p => p.id === updatedPanel.id ? updatedPanel : p),
-          updatedAt: Date.now(),
-        };
-      }
-      return c;
-    }));
-  }, []);
+    setComics((prev) => {
+      const current = prev.find(c => c.id === currentComicId);
+      if (!current) return prev;
+      const updatedPanels = current.panels.map((p) => (p.id === updatedPanel.id ? updatedPanel : p));
+      const updatedComic = {
+        ...current,
+        panels: updatedPanels,
+        updatedAt: Date.now(),
+      };
+      return prev.map(c => c.id === updatedComic.id ? updatedComic : c);
+    });
+  }, [currentComicId]);
 
   // Move panel order
   const handleMovePanel = useCallback((fromIndex: number, toIndex: number) => {
-    setComics((prev) => prev.map(c => {
-      if (c.id === currentComicRef.current.id) {
-        if (toIndex < 0 || toIndex >= c.panels.length) return c;
-        const newPanels = [...c.panels];
-        const [moved] = newPanels.splice(fromIndex, 1);
-        newPanels.splice(toIndex, 0, moved);
-        const renumbered = newPanels.map((p, i) => ({ ...p, panelNumber: i + 1 }));
-        return { ...c, panels: renumbered };
-      }
-      return c;
-    }));
-  }, []);
+    setComics((prev) => {
+      const current = prev.find(c => c.id === currentComicId);
+      if (!current || toIndex < 0 || toIndex >= current.panels.length) return prev;
+      const newPanels = [...current.panels];
+      const [moved] = newPanels.splice(fromIndex, 1);
+      newPanels.splice(toIndex, 0, moved);
+      const renumbered = newPanels.map((p, i) => ({ ...p, panelNumber: i + 1 }));
+      const updatedComic = { ...current, panels: renumbered, updatedAt: Date.now() };
+      return prev.map(c => c.id === updatedComic.id ? updatedComic : c);
+    });
+  }, [currentComicId]);
 
   // Delete panel
   const handleDeletePanel = useCallback((panelId: string) => {
-    setComics((prev) => prev.map(c => {
-      if (c.id === currentComicRef.current.id) {
-        if (c.panels.length <= 1) return c;
-        const newPanels = c.panels.filter((p) => p.id !== panelId).map((p, i) => ({ ...p, panelNumber: i + 1 }));
-        return { ...c, panels: newPanels };
-      }
-      return c;
-    }));
-  }, []);
+    setComics((prev) => {
+      const current = prev.find(c => c.id === currentComicId);
+      if (!current || current.panels.length <= 1) return prev;
+      const newPanels = current.panels
+        .filter((p) => p.id !== panelId)
+        .map((p, i) => ({ ...p, panelNumber: i + 1 }));
+      const updatedComic = { ...current, panels: newPanels, updatedAt: Date.now() };
+      return prev.map(c => c.id === updatedComic.id ? updatedComic : c);
+    });
+  }, [currentComicId]);
 
   // Add blank panel
   const handleAddPanel = () => {
@@ -163,15 +161,15 @@ export default function App() {
 
   // Regenerate single panel image using server API
   const handleRegenerateImage = useCallback(async (panelId: string) => {
-    const comic = currentComicRef.current;
-    const panel = comic.panels.find((p) => p.id === panelId);
+    const current = currentComicRef.current;
+    const panel = current.panels.find((p) => p.id === panelId);
     if (!panel) return;
 
     // Mark as generating
     handleUpdatePanel({ ...panel, imageStatus: 'generating' });
 
     try {
-      const styleDef = COMIC_STYLES.find((s) => s.id === comic.styleId);
+      const styleDef = COMIC_STYLES.find((s) => s.id === current.styleId);
       const res = await fetch('/api/comic/generate-panel', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -550,7 +548,7 @@ export default function App() {
             comic={currentComic}
             onUpdatePanel={handleUpdatePanel}
             onRegenerateImage={handleRegenerateImage}
-            onOpenInspector={handleOpenInspector}
+            onOpenInspector={setInspectingPanelId}
             onMovePanel={handleMovePanel}
             onDeletePanel={handleDeletePanel}
           />
