@@ -1,3 +1,3 @@
-## 2024-05-14 - [Confirmation & A11y for Destructive Actions]
-**Learning:** Destructive actions (like deleting panels, comics, or captions) lacked both confirmation dialogues and proper accessibility labels (`aria-label`). This presented a risk of accidental data loss, particularly for keyboard users, while offering no context for screen readers when focused on icon-only buttons.
-**Action:** Implemented `window.confirm` dialogues and added `aria-label` along with `focus-visible:ring-2` to all delete buttons to prevent accidents and improve navigational clarity. Always ensure destructive actions are guarded and labeled going forward.
+## 2024-05-18 - Guarding Destructive Actions and Icon Button Accessibility
+**Learning:** Found multiple instances where destructive actions like deleting comics or panels were not guarded by confirmation dialogs, and icon-only buttons lacked aria-labels for screen readers and visible focus states for keyboard navigation.
+**Action:** Always guard destructive actions (deletions, clears) with `window.confirm`. Ensure all icon-only buttons have descriptive `aria-label` attributes and visible focus states (e.g. `focus-visible:ring-2`) for reliable accessibility.
