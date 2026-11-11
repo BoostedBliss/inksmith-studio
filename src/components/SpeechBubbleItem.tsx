@@ -556,6 +556,7 @@ export const SpeechBubbleItem: React.FC<SpeechBubbleItemProps> = ({
             {/* 6. Delete bubble */}
             <button
               type="button"
+              aria-label="Delete bubble"
               title="Delete bubble"
               aria-label="Delete Bubble"
               onClick={() => {
