@@ -9,9 +9,10 @@ dotenv.config();
 const app = express();
 const PORT = 3000;
 
+// Security Middleware: Hide Express banner
 app.disable('x-powered-by');
 
-// Security headers middleware
+// Security Middleware: Set basic security headers
 app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
@@ -19,6 +20,7 @@ app.use((req, res, next) => {
   next();
 });
 
+// Security Enhancement: Limit JSON payload size to prevent DoS
 app.use(express.json({ limit: '2mb' }));
 
 // Lazy initializer for Gemini client
