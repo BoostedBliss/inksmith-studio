@@ -188,8 +188,13 @@ export const SFXStickerItem: React.FC<SFXStickerItemProps> = React.memo(({
             <button
               type="button"
               title="Delete SFX"
-              onClick={() => onDelete(sfx.id)}
-              className="p-0.5 text-red-400 hover:text-red-300"
+              aria-label="Delete SFX"
+              onClick={() => {
+                if (window.confirm('Are you sure you want to delete this SFX?')) {
+                  onDelete(sfx.id);
+                }
+              }}
+              className="p-0.5 text-red-400 hover:text-red-300 focus-visible:ring-2 focus:outline-none"
             >
               <Trash2 className="w-3 h-3" />
             </button>
