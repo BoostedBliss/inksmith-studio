@@ -13,7 +13,7 @@ interface ComicCanvasProps {
   onDeletePanel: (panelId: string) => void;
 }
 
-export const ComicCanvas = forwardRef<HTMLDivElement, ComicCanvasProps>(
+export const ComicCanvas = React.memo(forwardRef<HTMLDivElement, ComicCanvasProps>(
   ({ comic, onUpdatePanel, onRegenerateImage, onOpenInspector, onMovePanel, onDeletePanel }, ref) => {
     // Latest ref pattern to stabilize callbacks without causing stale closures
     const callbacksRef = useRef({ onUpdatePanel, onRegenerateImage, onOpenInspector, onMovePanel, onDeletePanel });
@@ -138,6 +138,6 @@ export const ComicCanvas = forwardRef<HTMLDivElement, ComicCanvasProps>(
       </div>
     );
   }
-);
+));
 
 ComicCanvas.displayName = 'ComicCanvas';
