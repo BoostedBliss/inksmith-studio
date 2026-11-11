@@ -92,6 +92,7 @@ export const ComicPanelItem: React.FC<ComicPanelItemProps> = React.memo(({
   };
 
   const handleDeleteBubble = (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this speech bubble?')) return;
     onUpdatePanel({
       ...panel,
       bubbles: panel.bubbles.filter((b) => b.id !== id),
@@ -126,6 +127,7 @@ export const ComicPanelItem: React.FC<ComicPanelItemProps> = React.memo(({
   };
 
   const handleDeleteSFX = (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this sound effect?')) return;
     onUpdatePanel({
       ...panel,
       sfxList: panel.sfxList.filter((s) => s.id !== id),
@@ -319,8 +321,13 @@ export const ComicPanelItem: React.FC<ComicPanelItemProps> = React.memo(({
               <span>|</span>
               <button
                 type="button"
-                onClick={() => onUpdatePanel({ ...panel, caption: '' })}
-                className="text-red-400 hover:text-white font-editorial-mono"
+                aria-label="Delete caption"
+                onClick={() => {
+                  if (window.confirm('Are you sure you want to delete this caption?')) {
+                    onUpdatePanel({ ...panel, caption: '' });
+                  }
+                }}
+                className="text-red-400 hover:text-white font-editorial-mono focus-visible:ring-2"
               >
                 Delete
               </button>
@@ -491,12 +498,15 @@ export const ComicPanelItem: React.FC<ComicPanelItemProps> = React.memo(({
           {totalPanels > 1 && (
             <button
               type="button"
+              aria-label="Delete panel"
               title="Delete Panel"
               onClick={(e) => {
                 e.stopPropagation();
-                onDeletePanel(panel.id);
+                if (window.confirm('Are you sure you want to delete this panel?')) {
+                  onDeletePanel(panel.id);
+                }
               }}
-              className="p-1 text-red-600 hover:bg-black hover:text-white"
+              className="p-1 text-red-600 hover:bg-black hover:text-white focus-visible:ring-2"
             >
               <Trash2 className="w-3.5 h-3.5" />
             </button>

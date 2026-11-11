@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ComicStrip, ComicPanel, ComicStyleId, ComicLayoutId } from './types';
 import { SAMPLE_INITIAL_COMIC, COMIC_STYLES, COMIC_LAYOUTS } from './data/comicPresets';
 import { ComicCanvas } from './components/ComicCanvas';
@@ -54,6 +54,12 @@ export default function App() {
 
   // Current active comic
   const currentComic = comics.find((c) => c.id === currentComicId) || comics[0] || SAMPLE_INITIAL_COMIC;
+
+  // Latest ref pattern to avoid stale closures in callbacks
+  const currentComicRef = useRef(currentComic);
+  useEffect(() => {
+    currentComicRef.current = currentComic;
+  }, [currentComic]);
 
   // Persist to localStorage
   useEffect(() => {
@@ -459,6 +465,7 @@ export default function App() {
 
   const handleDeleteComic = (id: string) => {
     if (comics.length <= 1) return;
+    if (!window.confirm('Are you sure you want to delete this comic?')) return;
     const remaining = comics.filter((c) => c.id !== id);
     setComics(remaining);
     if (currentComicId === id) {
@@ -556,7 +563,7 @@ export default function App() {
             comic={currentComic}
             onUpdatePanel={handleUpdatePanel}
             onRegenerateImage={handleRegenerateImage}
-            onOpenInspector={(panelId) => setInspectingPanelId(panelId)}
+            onOpenInspector={setInspectingPanelId}
             onMovePanel={handleMovePanel}
             onDeletePanel={handleDeletePanel}
           />
