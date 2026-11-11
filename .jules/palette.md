@@ -1,0 +1,3 @@
+## 2025-11-11 - Comic Library Modal Accessibility Improvements
+**Learning:** Dynamic lists in this app often lack descriptive `aria-label`s on icon-only action buttons, relying only on `title` attributes, and destructive actions like "Delete Comic" lack safeguards.
+**Action:** Added dynamic `aria-label`s utilizing the comic title, focus states for keyboard navigation, and a `window.confirm` dialog to prevent accidental deletion in `ComicLibraryModal`.
