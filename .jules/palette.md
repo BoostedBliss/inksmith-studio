@@ -1,3 +1,3 @@
-## 2024-05-18 - Guarding Destructive Actions and Icon Button Accessibility
-**Learning:** Found multiple instances where destructive actions like deleting comics or panels were not guarded by confirmation dialogs, and icon-only buttons lacked aria-labels for screen readers and visible focus states for keyboard navigation.
-**Action:** Always guard destructive actions (deletions, clears) with `window.confirm`. Ensure all icon-only buttons have descriptive `aria-label` attributes and visible focus states (e.g. `focus-visible:ring-2`) for reliable accessibility.
+## 2025-02-28 - Guarding Destructive Actions and Enhancing Icon-Only Button A11y
+**Learning:** Destructive actions (like deleting panels, comics, speech bubbles, or SFX) across this application's components were unguarded, lacking immediate confirmation. Additionally, many icon-only buttons lacked proper `aria-label` attributes and keyboard focus visible styles (`focus-visible:ring-2`), violating fundamental accessibility principles and creating potential data-loss frustration points for users.
+**Action:** Always wrap delete/destructive handlers with `window.confirm` to provide a fast native confirmation guard. Always attach explicit `aria-label`s to any button lacking readable text, and enforce focus indicators (e.g., `focus-visible:ring-2 focus:outline-none`) for proper keyboard navigation.

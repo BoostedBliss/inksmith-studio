@@ -206,7 +206,7 @@ export const ComicLibraryModal: React.FC<ComicLibraryModalProps> = ({
                             onDeleteComic(c.id);
                           }
                         }}
-                        className="p-1 text-red-600 hover:bg-black hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-1"
+                        className="p-1 text-red-600 hover:bg-black hover:text-white focus-visible:ring-2 focus:outline-none"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
