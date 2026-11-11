@@ -110,8 +110,9 @@ export const ComicLibraryModal: React.FC<ComicLibraryModalProps> = ({
 
             <button
               type="button"
+              aria-label="Close library"
               onClick={onClose}
-              className="p-1 hover:bg-black hover:text-white border border-transparent hover:border-black transition-colors"
+              className="p-1 hover:bg-black hover:text-white border border-transparent hover:border-black transition-colors focus-visible:ring-2 focus-visible:ring-black outline-none"
             >
               <X className="w-5 h-5" />
             </button>
@@ -170,11 +171,12 @@ export const ComicLibraryModal: React.FC<ComicLibraryModalProps> = ({
                     <button
                       type="button"
                       title="Download JSON"
+                      aria-label={`Download ${c.title || 'Untitled Comic'}`}
                       onClick={(e) => {
                         e.stopPropagation();
                         handleExportJSON(c);
                       }}
-                      className="p-1 text-black hover:text-red-600 hover:bg-gray-200"
+                      className="p-1 text-black hover:text-red-600 hover:bg-gray-200 focus-visible:ring-2 focus-visible:ring-red-600 outline-none"
                     >
                       <Download className="w-3.5 h-3.5" />
                     </button>
@@ -182,11 +184,12 @@ export const ComicLibraryModal: React.FC<ComicLibraryModalProps> = ({
                     <button
                       type="button"
                       title="Duplicate Comic"
+                      aria-label={`Duplicate ${c.title || 'Untitled Comic'}`}
                       onClick={(e) => {
                         e.stopPropagation();
                         onDuplicateComic(c.id);
                       }}
-                      className="p-1 text-black hover:text-red-600 hover:bg-gray-200"
+                      className="p-1 text-black hover:text-red-600 hover:bg-gray-200 focus-visible:ring-2 focus-visible:ring-red-600 outline-none"
                     >
                       <Copy className="w-3.5 h-3.5" />
                     </button>
@@ -196,9 +199,12 @@ export const ComicLibraryModal: React.FC<ComicLibraryModalProps> = ({
                         type="button"
                         aria-label="Delete comic"
                         title="Delete Comic"
+                        aria-label="Delete Comic"
                         onClick={(e) => {
                           e.stopPropagation();
-                          onDeleteComic(c.id);
+                          if (window.confirm('Are you sure you want to delete this comic?')) {
+                            onDeleteComic(c.id);
+                          }
                         }}
                         className="p-1 text-red-600 hover:bg-black hover:text-white focus-visible:ring-2 focus-visible:ring-red-600 focus:outline-none"
                       >

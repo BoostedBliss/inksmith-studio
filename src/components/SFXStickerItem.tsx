@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, memo } from 'react';
 import { ComicSFX, SFXColor, SFXStyle } from '../types';
 import { Trash2, RotateCw, Palette, Sparkles } from 'lucide-react';
 
@@ -11,7 +11,9 @@ interface SFXStickerItemProps {
   containerRef: React.RefObject<HTMLDivElement | null>;
 }
 
-export const SFXStickerItem: React.FC<SFXStickerItemProps> = ({
+// ⚡ Bolt Optimization: Wrap component in React.memo to prevent unnecessary re-renders
+// when other items or the parent panel update
+export const SFXStickerItem: React.FC<SFXStickerItemProps> = memo(({
   sfx,
   onUpdate,
   onDelete,
@@ -199,4 +201,4 @@ export const SFXStickerItem: React.FC<SFXStickerItemProps> = ({
       </div>
     </div>
   );
-};
+});
