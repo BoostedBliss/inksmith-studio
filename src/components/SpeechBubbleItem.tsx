@@ -24,13 +24,11 @@ interface SpeechBubbleItemProps {
   onUpdate: (updated: SpeechBubble) => void;
   onDelete: (id: string) => void;
   isSelected: boolean;
-  onSelect: () => void;
+  onSelect: (id: string) => void;
   containerRef: React.RefObject<HTMLDivElement | null>;
 }
 
-// ⚡ Bolt Optimization: Wrap component in React.memo to prevent unnecessary re-renders
-// when other bubbles or the parent panel update
-export const SpeechBubbleItem: React.FC<SpeechBubbleItemProps> = memo(({
+export const SpeechBubbleItem: React.FC<SpeechBubbleItemProps> = React.memo(({
   bubble,
   onUpdate,
   onDelete,
@@ -54,7 +52,7 @@ export const SpeechBubbleItem: React.FC<SpeechBubbleItemProps> = memo(({
   const handlePointerDown = (e: React.PointerEvent) => {
     if (isEditing) return;
     e.stopPropagation();
-    onSelect();
+    onSelect(bubble.id);
     setIsDragging(true);
     dragRef.current = {
       startX: e.clientX,

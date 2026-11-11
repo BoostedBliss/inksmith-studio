@@ -1,4 +1,4 @@
-import React, { useRef, useState, useMemo, memo } from 'react';
+import React, { useRef, useState, useMemo, useCallback } from 'react';
 import { ComicPanel, ComicStyleId, SpeechBubble, ComicSFX } from '../types';
 import { SpeechBubbleItem } from './SpeechBubbleItem';
 import { SFXStickerItem } from './SFXStickerItem';
@@ -30,9 +30,7 @@ interface ComicPanelItemProps {
   spanClass?: string;
 }
 
-// ⚡ Bolt Optimization: Wrap component in React.memo to prevent unnecessary re-renders
-// when sibling panels update, saving significant processing time per action
-export const ComicPanelItem: React.FC<ComicPanelItemProps> = memo(({
+export const ComicPanelItem: React.FC<ComicPanelItemProps> = React.memo(({
   panel,
   styleId,
   index,
@@ -93,15 +91,13 @@ export const ComicPanelItem: React.FC<ComicPanelItemProps> = memo(({
     });
   }, [panel, onUpdatePanel]);
 
-  const handleDeleteBubble = (id: string) => {
-    if (window.confirm('Are you sure you want to delete this speech bubble?')) {
-      onUpdatePanel({
-        ...panel,
-        bubbles: panel.bubbles.filter((b) => b.id !== id),
-      });
-      if (selectedBubbleId === id) setSelectedBubbleId(null);
-    }
-  };
+  const handleDeleteBubble = useCallback((id: string) => {
+    onUpdatePanel({
+      ...panel,
+      bubbles: panel.bubbles.filter((b) => b.id !== id),
+    });
+    setSelectedBubbleId((prev) => prev === id ? null : prev);
+  }, [panel, onUpdatePanel]);
 
   // Handle SFX actions
   const handleAddSFX = useCallback((text: string = 'POW!') => {
@@ -129,18 +125,26 @@ export const ComicPanelItem: React.FC<ComicPanelItemProps> = memo(({
     });
   }, [panel, onUpdatePanel]);
 
-  const handleDeleteSFX = (id: string) => {
-    if (window.confirm('Are you sure you want to delete this sound effect?')) {
-      onUpdatePanel({
-        ...panel,
-        sfxList: panel.sfxList.filter((s) => s.id !== id),
-      });
-      if (selectedSfxId === id) setSelectedSfxId(null);
-    }
-  };
+  const handleDeleteSFX = useCallback((id: string) => {
+    onUpdatePanel({
+      ...panel,
+      sfxList: panel.sfxList.filter((s) => s.id !== id),
+    });
+    setSelectedSfxId((prev) => prev === id ? null : prev);
+  }, [panel, onUpdatePanel]);
 
   // Image Upload Handlers
-  const handleFileUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSelectBubble = useCallback((id: string) => {
+    setSelectedBubbleId(id);
+    setSelectedSfxId(null);
+  }, []);
+
+  const handleSelectSFX = useCallback((id: string) => {
+    setSelectedSfxId(id);
+    setSelectedBubbleId(null);
+  }, []);
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
@@ -348,7 +352,7 @@ export const ComicPanelItem: React.FC<ComicPanelItemProps> = memo(({
           onUpdate={handleUpdateBubble}
           onDelete={handleDeleteBubble}
           isSelected={selectedBubbleId === bubble.id}
-          onSelect={() => handleSelectBubble(bubble.id)}
+          onSelect={handleSelectBubble}
           containerRef={containerRef}
         />
       ))}
@@ -361,7 +365,7 @@ export const ComicPanelItem: React.FC<ComicPanelItemProps> = memo(({
           onUpdate={handleUpdateSFX}
           onDelete={handleDeleteSFX}
           isSelected={selectedSfxId === sfx.id}
-          onSelect={() => handleSelectSFX(sfx.id)}
+          onSelect={handleSelectSFX}
           containerRef={containerRef}
         />
       ))}
