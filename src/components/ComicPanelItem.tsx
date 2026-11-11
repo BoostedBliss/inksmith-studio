@@ -30,7 +30,6 @@ interface ComicPanelItemProps {
   spanClass?: string;
 }
 
-// ⚡ Bolt: Wrapped in React.memo to prevent unnecessary re-renders of the expensive panel artwork and UI when siblings update.
 export const ComicPanelItem: React.FC<ComicPanelItemProps> = React.memo(({
   panel,
   styleId,
@@ -517,4 +516,3 @@ export const ComicPanelItem: React.FC<ComicPanelItemProps> = React.memo(({
     </div>
   );
 });
-ComicPanelItem.displayName = 'ComicPanelItem';
